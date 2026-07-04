@@ -44,3 +44,5 @@ bundles/
 *.tfvars
 backend.hcl
 crash.log
+tools/synthea/output/
+tools/synthea/*.jar
