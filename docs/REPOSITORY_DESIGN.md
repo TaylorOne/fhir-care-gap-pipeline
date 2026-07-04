@@ -79,6 +79,9 @@ across services is a classic coupling mistake — a reader-driven entity change
 silently alters writer behavior. Instead:
 
 - **The schema is the contract.** `care-gap-api` owns it via Flyway migrations.
+  *(Amended during milestone 3: ownership moved to `gap-analysis-service` — the
+  writer ships first and defines what it produces; the API will validate
+  against the schema rather than migrate it.)*
 - **The writer uses plain `JdbcTemplate`** with set-based
   `INSERT … ON CONFLICT … DO UPDATE` upserts — the right tool for bulk writes
   anyway; row-at-a-time JPA would be the wrong instrument there.
