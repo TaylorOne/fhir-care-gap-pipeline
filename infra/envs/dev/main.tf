@@ -42,3 +42,16 @@ module "fhir_store" {
 
   depends_on = [google_project_service.required]
 }
+
+module "ingestion" {
+  source = "../../modules/ingestion"
+
+  project_id     = var.project_id
+  region         = var.region
+  bucket_name    = "${var.project_id}-fhir-ingest"
+  image          = var.ingestion_image
+  fhir_store_id  = module.fhir_store.fhir_store_id
+  fhir_store_url = module.fhir_store.fhir_store_url
+
+  depends_on = [google_project_service.required]
+}

@@ -3,6 +3,11 @@ output "fhir_store_url" {
   value       = module.fhir_store.fhir_store_url
 }
 
+output "ingest_bucket" {
+  description = "Bucket Synthea bundles are uploaded to (tools/synthea/upload.sh target)."
+  value       = module.ingestion.ingest_bucket
+}
+
 output "artifact_registry" {
   description = "Docker registry prefix for `mvn jib:build -Dcontainer.registry=...`."
   value       = "${google_artifact_registry_repository.images.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.images.repository_id}"
