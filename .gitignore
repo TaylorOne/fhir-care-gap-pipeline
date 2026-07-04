@@ -36,3 +36,11 @@ target/
 
 # Local dev artifacts
 bundles/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+backend.hcl
+crash.log

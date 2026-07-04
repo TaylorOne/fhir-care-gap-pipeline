@@ -1,0 +1,5 @@
+# Copy to backend.hcl (gitignored) and fill in, then: terraform init -backend-config=backend.hcl
+# One-time bootstrap of the state bucket:
+#   gcloud storage buckets create gs://YOUR_PROJECT-tfstate --location=us-central1 --uniform-bucket-level-access
+bucket = "YOUR_PROJECT-tfstate"
+prefix = "fhir-care-gap-pipeline/dev"
