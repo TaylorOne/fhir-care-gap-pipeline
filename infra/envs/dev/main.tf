@@ -35,10 +35,47 @@ resource "google_artifact_registry_repository" "images" {
 module "fhir_store" {
   source = "../../modules/fhir-store"
 
-  project_id    = var.project_id
-  location      = var.region
-  dataset_id    = "care-gap-dev"
-  fhir_store_id = "clinical-data"
+  project_id              = var.project_id
+  location                = var.region
+  dataset_id              = "care-gap-dev"
+  fhir_store_id           = "clinical-data"
+  bigquery_stream_dataset = "${var.project_id}.${module.analytics.dataset_id}"
+
+  depends_on = [google_project_service.required]
+}
+
+# Created here rather than inside a module: it is an input to both the
+# analytics module (Cloud Run identity, BQ grants) and the operational-db
+# module (IAM database user).
+resource "google_service_account" "gap_analysis_runtime" {
+  account_id   = "gap-analysis-sa"
+  display_name = "Runtime identity of gap-analysis-service"
+}
+
+module "operational_db" {
+  source = "../../modules/operational-db"
+
+  project_id           = var.project_id
+  region               = var.region
+  iam_service_accounts = [google_service_account.gap_analysis_runtime.email]
+
+  depends_on = [google_project_service.required]
+}
+
+module "analytics" {
+  source = "../../modules/analytics"
+
+  project_id                    = var.project_id
+  region                        = var.region
+  image                         = var.gap_analysis_image
+  runtime_service_account_email = google_service_account.gap_analysis_runtime.email
+  db_username                   = trimsuffix(google_service_account.gap_analysis_runtime.email, ".gserviceaccount.com")
+  db_jdbc_url = join("", [
+    "jdbc:postgresql:///${module.operational_db.database_name}",
+    "?cloudSqlInstance=${module.operational_db.connection_name}",
+    "&socketFactory=com.google.cloud.sql.postgres.SocketFactory",
+    "&enableIamAuth=true",
+  ])
 
   depends_on = [google_project_service.required]
 }

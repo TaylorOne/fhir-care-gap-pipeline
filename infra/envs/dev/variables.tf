@@ -20,3 +20,9 @@ variable "ingestion_image" {
   type        = string
   default     = "us-docker.pkg.dev/cloudrun/container/hello"
 }
+
+variable "gap_analysis_image" {
+  description = "Container image for the gap-analysis service; same placeholder-then-CI story as ingestion_image."
+  type        = string
+  default     = "us-docker.pkg.dev/cloudrun/container/hello"
+}

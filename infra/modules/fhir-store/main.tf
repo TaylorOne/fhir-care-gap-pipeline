@@ -21,6 +21,19 @@ resource "google_healthcare_fhir_store" "this" {
   # enforcing reference validity.
   disable_referential_integrity = true
 
-  # Streaming BigQuery export (stream_configs) is added in the analytics
-  # milestone together with the dataset it targets.
+  # Streaming export: every resource create/update lands in BigQuery within
+  # seconds, no export jobs to orchestrate. Appends a row per resource
+  # VERSION — measure SQL dedups to the latest version per id.
+  dynamic "stream_configs" {
+    for_each = var.bigquery_stream_dataset == "" ? [] : [var.bigquery_stream_dataset]
+    content {
+      bigquery_destination {
+        dataset_uri = "bq://${stream_configs.value}"
+        schema_config {
+          schema_type               = "ANALYTICS_V2"
+          recursive_structure_depth = 2
+        }
+      }
+    }
+  }
 }
