@@ -1,0 +1,16 @@
+# Local development dependencies. See docs/REPOSITORY_DESIGN.md §7.
+#
+# fhir: HAPI FHIR JPA server as the local stand-in for the Google Cloud
+# Healthcare API FHIR store — both expose the standard FHIR R4 REST API, so the
+# ingestion service only swaps the base URL (application-local.yml). H2
+# in-memory persistence is deliberate: wipe state with `docker compose down`.
+services:
+  fhir:
+    image: hapiproject/hapi:v8.0.0
+    ports:
+      - "8090:8080"
+    environment:
+      hapi.fhir.fhir_version: R4
+      # Synthea bundle references stay resolvable even when entries arrive
+      # as client-assigned-id PUTs (update-as-create).
+      hapi.fhir.client_id_strategy: ANY
