@@ -1,0 +1,6 @@
+# Local development: docker compose runs a HAPI FHIR JPA server on :8090 as the
+# Healthcare API stand-in (same FHIR R4 REST API); no GCP credentials required.
+ingestion:
+  fhir-store-url: ${FHIR_STORE_URL:http://localhost:8090/fhir}
+  use-google-auth: false
+  local-bundle-dir: ${LOCAL_BUNDLE_DIR:./bundles}

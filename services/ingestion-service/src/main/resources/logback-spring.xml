@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logging strategy:
+  - gcp profile: single-line JSON via Spring Cloud GCP's StackdriverJsonLayout.
+    Cloud Logging maps `severity` natively and MDC entries (gcsBucket,
+    gcsObject) become queryable jsonPayload fields.
+  - everywhere else: Spring Boot's human-readable console pattern.
+-->
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+  <springProfile name="gcp">
+    <include resource="com/google/cloud/spring/logging/logback-json-appender.xml"/>
+    <root level="INFO">
+      <appender-ref ref="CONSOLE_JSON"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="!gcp">
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+</configuration>
