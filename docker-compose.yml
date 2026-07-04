@@ -14,3 +14,14 @@ services:
       # Synthea bundle references stay resolvable even when entries arrive
       # as client-assigned-id PUTs (update-as-create).
       hapi.fhir.client_id_strategy: ANY
+
+  # Operational store for care-gap records (gap-analysis-service writes,
+  # care-gap-api reads). Port 5433 to avoid clashing with a host Postgres.
+  postgres:
+    image: postgres:16
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: caregaps
+      POSTGRES_USER: caregap
+      POSTGRES_PASSWORD: caregap

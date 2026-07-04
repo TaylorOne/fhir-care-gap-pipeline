@@ -1,0 +1,10 @@
+# Local development against the compose PostgreSQL; no GCP credentials needed.
+# BigQuery is replaced by LocalMeasureRunner (no credible emulator exists).
+spring:
+  datasource:
+    url: ${DB_JDBC_URL:jdbc:postgresql://localhost:5433/caregaps}
+    username: ${DB_USERNAME:caregap}
+    password: ${DB_PASSWORD:caregap}
+
+gapanalysis:
+  bigquery-dataset: ${BQ_DATASET:fhir_data}
