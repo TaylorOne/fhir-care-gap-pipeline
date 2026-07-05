@@ -107,6 +107,26 @@
           <version>${maven-surefire-plugin.version}</version>
         </plugin>
         <plugin>
+          <!-- Integration tests (*IT.java) need Docker for Testcontainers;
+               skip in Docker-less environments with -DskipITs. -->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <!-- Boot's repackaged fat jar is not classpath-loadable; run ITs
+                 against the compiled classes instead. -->
+            <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot.version}</version>
