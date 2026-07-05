@@ -1,0 +1,29 @@
+<header>
+  <h1>Care Gap Dashboard</h1>
+  <p class="subtitle">Simplified HEDIS-style quality measures over synthetic (Synthea) FHIR data</p>
+</header>
+
+<main>
+  @if (loadFailed()) {
+    <p class="banner" role="alert">
+      Could not reach the care-gap API. Is it running, and is the API URL configured?
+    </p>
+  }
+
+  <app-summary-cards [summary]="summary()" [measures]="measures()" />
+
+  <section>
+    <h2>Care gaps</h2>
+    <app-gaps-table [measures]="measures()" />
+  </section>
+
+  <section>
+    <h2>Recent measure runs</h2>
+    <app-runs-panel [runs]="runs()" />
+  </section>
+</main>
+
+<footer>
+  Synthetic data only — no PHI. Part of the
+  <a href="https://github.com/TaylorOne/fhir-care-gap-pipeline">FHIR Care Gap Analysis Pipeline</a>.
+</footer>

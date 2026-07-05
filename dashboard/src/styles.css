@@ -1,0 +1,36 @@
+/* Design tokens. Palette values are from the validated reference palette
+   (dataviz method): the status pair blue↔orange passes all six checks in both
+   modes (worst CVD ΔE ≈ 97). Dark mode uses selected steps, not an automatic
+   flip of the light values. */
+:root {
+  --surface-1: #fcfcfb;
+  --surface-2: #ffffff;
+  --border: #e4e3df;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --status-open: #eb6834;   /* needs attention */
+  --status-closed: #2a78d6; /* satisfied */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-1: #1a1a19;
+    --surface-2: #232322;
+    --border: #3a3a37;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --status-open: #d95926;
+    --status-closed: #3987e5;
+  }
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
