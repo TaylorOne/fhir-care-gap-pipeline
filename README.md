@@ -9,8 +9,9 @@ Spring Boot API and Angular dashboard.
 **Design docs:** [Architecture](docs/ARCHITECTURE.md) ·
 [Repository design](docs/REPOSITORY_DESIGN.md)
 
-**Status:** ingestion, analytics (measure SQL + gap analysis), and REST API
-complete with infrastructure; Angular dashboard upcoming.
+**Status:** all pipeline components complete — ingestion, analytics (measure
+SQL + gap analysis), REST API, and Angular dashboard, each with
+infrastructure. Remaining: CI/CD workflows.
 
 All clinical data is synthetic (Synthea). No PHI anywhere.
 
@@ -75,6 +76,7 @@ milestone is the one always-on cost — stop it when not demoing.
 | `services/ingestion-service` | Cloud Run service: GCS event → HAPI parse/validate → idempotent PUT rewrite → FHIR store, with retry/backoff |
 | `services/gap-analysis-service` | Cloud Run service: Pub/Sub → measure SQL on BigQuery → gap upserts into PostgreSQL; owns the schema (Flyway) |
 | `services/care-gap-api` | Read-only REST API over the operational store (`/api/gaps`, `/api/gaps/summary`, `/api/measures`, `/api/runs`) |
+| `dashboard/` | Angular 20 dashboard (stat tiles, gap table, run history); nginx container with runtime API URL injection |
 | `measures/` | Simplified HEDIS-style measure SQL (BigQuery) |
 | `infra/` | Terraform: `modules/` (fhir-store, ingestion, analytics, operational-db, serving) + `envs/dev` |
 | `tools/synthea` | Generate synthetic bundles, upload to the ingest bucket |

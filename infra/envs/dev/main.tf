@@ -88,10 +88,10 @@ module "serving" {
   project_id                    = var.project_id
   region                        = var.region
   image                         = var.api_image
+  dashboard_image               = var.dashboard_image
   runtime_service_account_email = google_service_account.api_runtime.email
   db_jdbc_url                   = local.db_jdbc_url
   db_username                   = local.api_db_user
-  dashboard_origin              = var.dashboard_origin
 
   depends_on = [google_project_service.required]
 }

@@ -13,6 +13,11 @@ output "api_url" {
   value       = module.serving.api_url
 }
 
+output "dashboard_url" {
+  description = "Public URL of the dashboard."
+  value       = module.serving.dashboard_url
+}
+
 output "artifact_registry" {
   description = "Docker registry prefix for `mvn jib:build -Dcontainer.registry=...`."
   value       = "${google_artifact_registry_repository.images.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.images.repository_id}"

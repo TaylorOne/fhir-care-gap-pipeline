@@ -274,3 +274,9 @@ Adding a measure is data + SQL, not code — a point worth making in the README.
 3. **Angular hosting** — Cloud Storage + CDN chosen for GCP purity; Firebase
    Hosting is the ergonomically nicer alternative if we accept the Firebase
    toolchain. Flagged for Phase 2 decision.
+   *(Resolved during milestone 5: the dashboard is served by **Cloud Run
+   (nginx)** instead. A GCS static site requires an HTTPS load balancer at
+   ~$18/month — it would have been the single largest cost in the project —
+   while Cloud Run scales to zero with TLS included and keeps the whole
+   stack on one runtime. Firebase Hosting was rejected to avoid a second
+   toolchain.)*

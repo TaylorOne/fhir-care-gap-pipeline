@@ -1,4 +1,21 @@
-# Public-facing read-only API for the dashboard.
+# Public-facing read-only API plus the dashboard that consumes it.
+#
+# The dashboard is served by Cloud Run (nginx) rather than the originally
+# sketched Cloud Storage + CDN: a GCS static site needs an HTTPS load
+# balancer (~$18/month — it would dwarf every other cost in the project),
+# while Cloud Run scales to zero with TLS included. Recorded as an
+# architecture amendment in docs/ARCHITECTURE.md.
+#
+# CORS needs the dashboard's origin before the dashboard service exists
+# (the API and dashboard would otherwise reference each other), so we use
+# Cloud Run's deterministic URL format: https://SERVICE-PROJECT_NUMBER.REGION.run.app
+data "google_project" "this" {
+  project_id = var.project_id
+}
+
+locals {
+  dashboard_origin = "https://${var.dashboard_service_name}-${data.google_project.this.number}.${var.region}.run.app"
+}
 
 resource "google_project_iam_member" "runtime_cloudsql_client" {
   project = var.project_id
@@ -48,7 +65,7 @@ resource "google_cloud_run_v2_service" "api" {
       }
       env {
         name  = "DASHBOARD_ORIGIN"
-        value = var.dashboard_origin
+        value = local.dashboard_origin
       }
 
       resources {
@@ -72,6 +89,64 @@ resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
   project  = var.project_id
   location = var.region
   name     = google_cloud_run_v2_service.api.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+# --- Dashboard ----------------------------------------------------------------
+
+resource "google_service_account" "dashboard" {
+  project      = var.project_id
+  account_id   = "${var.dashboard_service_name}-sa"
+  display_name = "Runtime identity of ${var.dashboard_service_name} (static content; no grants)"
+}
+
+resource "google_cloud_run_v2_service" "dashboard" {
+  project             = var.project_id
+  name                = var.dashboard_service_name
+  location            = var.region
+  ingress             = "INGRESS_TRAFFIC_ALL"
+  deletion_protection = false
+
+  template {
+    service_account = google_service_account.dashboard.email
+
+    scaling {
+      min_instance_count = 0
+      max_instance_count = 2
+    }
+
+    containers {
+      image = var.dashboard_image
+
+      ports {
+        container_port = 8080
+      }
+
+      env {
+        name  = "API_URL"
+        value = google_cloud_run_v2_service.api.uri
+      }
+
+      resources {
+        limits = {
+          cpu    = "1"
+          memory = "256Mi"
+        }
+        cpu_idle = true
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [template[0].containers[0].image]
+  }
+}
+
+resource "google_cloud_run_v2_service_iam_member" "dashboard_public" {
+  project  = var.project_id
+  location = var.region
+  name     = google_cloud_run_v2_service.dashboard.name
   role     = "roles/run.invoker"
   member   = "allUsers"
 }

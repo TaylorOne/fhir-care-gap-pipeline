@@ -33,8 +33,8 @@ variable "api_image" {
   default     = "us-docker.pkg.dev/cloudrun/container/hello"
 }
 
-variable "dashboard_origin" {
-  description = "Origin the API allows via CORS (the dashboard URL once it exists)."
+variable "dashboard_image" {
+  description = "Container image for the dashboard; same placeholder-then-CI story as ingestion_image."
   type        = string
-  default     = "http://localhost:4200"
+  default     = "us-docker.pkg.dev/cloudrun/container/hello"
 }

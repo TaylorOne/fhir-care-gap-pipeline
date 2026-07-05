@@ -29,8 +29,12 @@ variable "db_username" {
   type = string
 }
 
-variable "dashboard_origin" {
-  description = "Origin allowed by CORS; the dashboard's URL."
+variable "dashboard_service_name" {
+  type    = string
+  default = "care-gap-dashboard"
+}
+
+variable "dashboard_image" {
+  description = "Dashboard container image; same placeholder-then-CI story as the API image."
   type        = string
-  default     = "http://localhost:4200"
 }
