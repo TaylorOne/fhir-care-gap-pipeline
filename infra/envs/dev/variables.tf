@@ -26,3 +26,15 @@ variable "gap_analysis_image" {
   type        = string
   default     = "us-docker.pkg.dev/cloudrun/container/hello"
 }
+
+variable "api_image" {
+  description = "Container image for care-gap-api; same placeholder-then-CI story as ingestion_image."
+  type        = string
+  default     = "us-docker.pkg.dev/cloudrun/container/hello"
+}
+
+variable "dashboard_origin" {
+  description = "Origin the API allows via CORS (the dashboard URL once it exists)."
+  type        = string
+  default     = "http://localhost:4200"
+}

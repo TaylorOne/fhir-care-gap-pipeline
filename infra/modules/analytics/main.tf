@@ -127,6 +127,10 @@ resource "google_cloud_run_v2_service" "gap_analysis" {
         name  = "DB_USERNAME"
         value = var.db_username
       }
+      env {
+        name  = "API_DB_USER"
+        value = var.api_db_user
+      }
 
       resources {
         limits = {

@@ -8,6 +8,11 @@ output "ingest_bucket" {
   value       = module.ingestion.ingest_bucket
 }
 
+output "api_url" {
+  description = "Public base URL of the care-gap API."
+  value       = module.serving.api_url
+}
+
 output "artifact_registry" {
   description = "Docker registry prefix for `mvn jib:build -Dcontainer.registry=...`."
   value       = "${google_artifact_registry_repository.images.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.images.repository_id}"

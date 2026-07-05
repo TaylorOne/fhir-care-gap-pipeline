@@ -42,3 +42,8 @@ variable "db_username" {
   description = "Cloud SQL IAM database username of the runtime SA."
   type        = string
 }
+
+variable "api_db_user" {
+  description = "Database user of care-gap-api; Flyway V3 grants it SELECT."
+  type        = string
+}

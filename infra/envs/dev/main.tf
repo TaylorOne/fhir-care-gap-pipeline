@@ -52,12 +52,46 @@ resource "google_service_account" "gap_analysis_runtime" {
   display_name = "Runtime identity of gap-analysis-service"
 }
 
+resource "google_service_account" "api_runtime" {
+  account_id   = "care-gap-api-sa"
+  display_name = "Runtime identity of care-gap-api"
+}
+
+locals {
+  # Cloud SQL IAM usernames drop the .gserviceaccount.com suffix.
+  gap_analysis_db_user = trimsuffix(google_service_account.gap_analysis_runtime.email, ".gserviceaccount.com")
+  api_db_user          = trimsuffix(google_service_account.api_runtime.email, ".gserviceaccount.com")
+  db_jdbc_url = join("", [
+    "jdbc:postgresql:///${module.operational_db.database_name}",
+    "?cloudSqlInstance=${module.operational_db.connection_name}",
+    "&socketFactory=com.google.cloud.sql.postgres.SocketFactory",
+    "&enableIamAuth=true",
+  ])
+}
+
 module "operational_db" {
   source = "../../modules/operational-db"
 
-  project_id           = var.project_id
-  region               = var.region
-  iam_service_accounts = [google_service_account.gap_analysis_runtime.email]
+  project_id = var.project_id
+  region     = var.region
+  iam_service_accounts = [
+    google_service_account.gap_analysis_runtime.email,
+    google_service_account.api_runtime.email,
+  ]
+
+  depends_on = [google_project_service.required]
+}
+
+module "serving" {
+  source = "../../modules/serving"
+
+  project_id                    = var.project_id
+  region                        = var.region
+  image                         = var.api_image
+  runtime_service_account_email = google_service_account.api_runtime.email
+  db_jdbc_url                   = local.db_jdbc_url
+  db_username                   = local.api_db_user
+  dashboard_origin              = var.dashboard_origin
 
   depends_on = [google_project_service.required]
 }
@@ -69,13 +103,9 @@ module "analytics" {
   region                        = var.region
   image                         = var.gap_analysis_image
   runtime_service_account_email = google_service_account.gap_analysis_runtime.email
-  db_username                   = trimsuffix(google_service_account.gap_analysis_runtime.email, ".gserviceaccount.com")
-  db_jdbc_url = join("", [
-    "jdbc:postgresql:///${module.operational_db.database_name}",
-    "?cloudSqlInstance=${module.operational_db.connection_name}",
-    "&socketFactory=com.google.cloud.sql.postgres.SocketFactory",
-    "&enableIamAuth=true",
-  ])
+  db_username                   = local.gap_analysis_db_user
+  api_db_user                   = local.api_db_user
+  db_jdbc_url                   = local.db_jdbc_url
 
   depends_on = [google_project_service.required]
 }
