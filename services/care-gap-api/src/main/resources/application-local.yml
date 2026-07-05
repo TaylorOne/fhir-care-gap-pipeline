@@ -1,0 +1,6 @@
+# Local development against the compose PostgreSQL.
+spring:
+  datasource:
+    url: ${DB_JDBC_URL:jdbc:postgresql://localhost:5433/caregaps}
+    username: ${DB_USERNAME:caregap}
+    password: ${DB_PASSWORD:caregap}

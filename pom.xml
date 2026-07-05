@@ -18,6 +18,7 @@
   <modules>
     <module>services/ingestion-service</module>
     <module>services/gap-analysis-service</module>
+    <module>services/care-gap-api</module>
   </modules>
 
   <properties>

@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: care-gap-api
+  datasource:
+    url: ${DB_JDBC_URL:}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+  jpa:
+    # The writer owns the schema; fail startup if this mapping drifts from it.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  mvc:
+    problemdetails:
+      enabled: true # RFC 7807 bodies for validation/errors
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+api:
+  dashboard-origin: ${DASHBOARD_ORIGIN:http://localhost:4200}
