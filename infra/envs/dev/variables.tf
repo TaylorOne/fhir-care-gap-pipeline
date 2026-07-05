@@ -33,6 +33,12 @@ variable "api_image" {
   default     = "us-docker.pkg.dev/cloudrun/container/hello"
 }
 
+variable "github_repository" {
+  description = "owner/repo allowed to deploy via Workload Identity Federation."
+  type        = string
+  default     = "TaylorOne/fhir-care-gap-pipeline"
+}
+
 variable "dashboard_image" {
   description = "Container image for the dashboard; same placeholder-then-CI story as ingestion_image."
   type        = string

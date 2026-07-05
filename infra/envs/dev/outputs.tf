@@ -18,6 +18,16 @@ output "dashboard_url" {
   value       = module.serving.dashboard_url
 }
 
+output "cicd_workload_identity_provider" {
+  description = "GitHub repository variable GCP_WORKLOAD_IDENTITY_PROVIDER."
+  value       = module.cicd.workload_identity_provider
+}
+
+output "cicd_deployer_service_account" {
+  description = "GitHub repository variable GCP_DEPLOYER_SA."
+  value       = module.cicd.deployer_service_account
+}
+
 output "artifact_registry" {
   description = "Docker registry prefix for `mvn jib:build -Dcontainer.registry=...`."
   value       = "${google_artifact_registry_repository.images.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.images.repository_id}"

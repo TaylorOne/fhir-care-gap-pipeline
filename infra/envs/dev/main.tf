@@ -32,6 +32,21 @@ resource "google_artifact_registry_repository" "images" {
   depends_on = [google_project_service.required]
 }
 
+module "cicd" {
+  source = "../../modules/cicd"
+
+  project_id        = var.project_id
+  github_repository = var.github_repository
+  runtime_service_accounts = [
+    module.ingestion.runtime_service_account,
+    google_service_account.gap_analysis_runtime.email,
+    google_service_account.api_runtime.email,
+    module.serving.dashboard_service_account,
+  ]
+
+  depends_on = [google_project_service.required]
+}
+
 module "fhir_store" {
   source = "../../modules/fhir-store"
 
