@@ -1,0 +1,17 @@
+name: Deploy ingestion-service
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/ingestion-service/**"
+      - "pom.xml"
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-service.yml
+    with:
+      service: ingestion-service
+    permissions:
+      id-token: write
+      contents: read

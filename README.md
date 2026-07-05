@@ -9,9 +9,8 @@ Spring Boot API and Angular dashboard.
 **Design docs:** [Architecture](docs/ARCHITECTURE.md) ·
 [Repository design](docs/REPOSITORY_DESIGN.md)
 
-**Status:** all pipeline components complete — ingestion, analytics (measure
-SQL + gap analysis), REST API, and Angular dashboard, each with
-infrastructure. Remaining: CI/CD workflows.
+**Status:** complete — ingestion, analytics (measure SQL + gap analysis),
+REST API, Angular dashboard, infrastructure, and CI/CD.
 
 All clinical data is synthetic (Synthea). No PHI anywhere.
 
@@ -66,8 +65,24 @@ gcloud logging read 'resource.labels.service_name=ingestion-service' --limit 20
 ```
 
 Cost note: everything here scales to zero except the Healthcare API dataset
-(cents/month at Synthea scale). The Cloud SQL instance arriving in a later
-milestone is the one always-on cost — stop it when not demoing.
+(cents/month at Synthea scale) and Cloud SQL — the one always-on cost; stop
+the instance when not demoing.
+
+## CI/CD
+
+`ci.yml` builds and tests everything (including Testcontainers integration
+tests) on every PR. Pushes to `main` trigger path-filtered deploys: only the
+service whose files changed is rebuilt and rolled out, via Workload Identity
+Federation — no stored keys. One-time setup after `terraform apply`: set four
+GitHub repository variables (Settings → Secrets and variables → Actions →
+Variables):
+
+| Variable | Value |
+|---|---|
+| `GCP_PROJECT` | your project id |
+| `GCP_REGION` | `us-central1` |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | `terraform output cicd_workload_identity_provider` |
+| `GCP_DEPLOYER_SA` | `terraform output cicd_deployer_service_account` |
 
 ## Repository layout
 

@@ -1,0 +1,45 @@
+# Reusable deploy for the three Java services: Jib image build pushed to
+# Artifact Registry, then a Cloud Run revision rollout. Auth is keyless
+# (Workload Identity Federation); repository variables required:
+#   GCP_PROJECT, GCP_REGION, GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_DEPLOYER_SA
+name: deploy-service
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: Maven module / Cloud Run service name
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # mint the GitHub OIDC token for WIF
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Allow Jib to push to Artifact Registry
+        run: gcloud auth configure-docker ${{ vars.GCP_REGION }}-docker.pkg.dev --quiet
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Build and push image
+        run: >
+          mvn -B -pl services/${{ inputs.service }} -am compile jib:build
+          -DskipTests
+          -Djib.to.image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/fhir-pipeline/${{ inputs.service }}:${{ github.sha }}
+      - name: Roll the Cloud Run revision
+        run: >
+          gcloud run deploy ${{ inputs.service }}
+          --project ${{ vars.GCP_PROJECT }}
+          --region ${{ vars.GCP_REGION }}
+          --image ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/fhir-pipeline/${{ inputs.service }}:${{ github.sha }}

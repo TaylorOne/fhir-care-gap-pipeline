@@ -1,0 +1,17 @@
+name: Deploy care-gap-api
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/care-gap-api/**"
+      - "pom.xml"
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-service.yml
+    with:
+      service: care-gap-api
+    permissions:
+      id-token: write
+      contents: read
