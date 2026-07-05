@@ -6,6 +6,10 @@ spring:
     url: ${DB_JDBC_URL:}
     username: ${DB_USERNAME:}
     password: ${DB_PASSWORD:}
+  flyway:
+    placeholders:
+      # database user of care-gap-api, granted read access by V3
+      apiuser: ${API_DB_USER:caregap}
 
 server:
   port: ${PORT:8080}

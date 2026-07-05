@@ -38,6 +38,7 @@ class CareGapPersistenceIT {
     static void migrateAndWire() {
         Flyway.configure()
                 .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
+                .placeholders(Map.of("apiuser", postgres.getUsername()))
                 .load()
                 .migrate();
         jdbc = new JdbcTemplate(new DriverManagerDataSource(
