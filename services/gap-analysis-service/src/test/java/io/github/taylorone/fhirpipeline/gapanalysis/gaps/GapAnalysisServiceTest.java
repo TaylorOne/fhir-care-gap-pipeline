@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.github.taylorone.fhirpipeline.gapanalysis.bigquery.MeasureRunner;
+import io.github.taylorone.fhirpipeline.gapanalysis.fhir.DetectedIssuePublisher;
 import io.github.taylorone.fhirpipeline.gapanalysis.measure.MeasureCatalog;
 import io.github.taylorone.fhirpipeline.gapanalysis.measure.PatientEvaluation;
 import java.time.LocalDate;
@@ -27,6 +28,7 @@ class GapAnalysisServiceTest {
     private final MeasureRunner runner = mock(MeasureRunner.class);
     private final CareGapWriter writer = mock(CareGapWriter.class);
     private final MeasureRunTracker tracker = mock(MeasureRunTracker.class);
+    private final DetectedIssuePublisher issuePublisher = mock(DetectedIssuePublisher.class);
     private final UUID runId = UUID.randomUUID();
 
     private GapAnalysisService service;
@@ -35,7 +37,7 @@ class GapAnalysisServiceTest {
     void setUp() {
         when(tracker.start(RUN_DATE)).thenReturn(runId);
         // real catalog: the run iterates the actual three measures
-        service = new GapAnalysisService(new MeasureCatalog(), runner, writer, tracker);
+        service = new GapAnalysisService(new MeasureCatalog(), runner, writer, tracker, issuePublisher);
     }
 
     @Test
@@ -52,6 +54,7 @@ class GapAnalysisServiceTest {
         assertThat(summary.gapsOpen()).isEqualTo(3);   // 1 per measure
         assertThat(summary.gapsClosed()).isEqualTo(3);
         verify(tracker).complete(runId, 3, 3);
+        verify(issuePublisher, org.mockito.Mockito.times(3)).publish(any(), eq(RUN_DATE), any());
     }
 
     @Test

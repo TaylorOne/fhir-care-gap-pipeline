@@ -27,3 +27,6 @@ management:
 gapanalysis:
   bigquery-project: ${BQ_PROJECT:}
   bigquery-dataset: ${BQ_DATASET:}
+  fhir-writeback-enabled: ${FHIR_WRITEBACK_ENABLED:false}
+  fhir-store-url: ${FHIR_STORE_URL:}
+  use-google-auth: ${FHIR_USE_GOOGLE_AUTH:true}

@@ -1,6 +1,7 @@
 package io.github.taylorone.fhirpipeline.gapanalysis.gaps;
 
 import io.github.taylorone.fhirpipeline.gapanalysis.bigquery.MeasureRunner;
+import io.github.taylorone.fhirpipeline.gapanalysis.fhir.DetectedIssuePublisher;
 import io.github.taylorone.fhirpipeline.gapanalysis.measure.MeasureCatalog;
 import io.github.taylorone.fhirpipeline.gapanalysis.measure.MeasureDefinition;
 import io.github.taylorone.fhirpipeline.gapanalysis.measure.PatientEvaluation;
@@ -27,13 +28,19 @@ public class GapAnalysisService {
     private final MeasureRunner runner;
     private final CareGapWriter writer;
     private final MeasureRunTracker tracker;
+    private final DetectedIssuePublisher issuePublisher;
 
     public GapAnalysisService(
-            MeasureCatalog catalog, MeasureRunner runner, CareGapWriter writer, MeasureRunTracker tracker) {
+            MeasureCatalog catalog,
+            MeasureRunner runner,
+            CareGapWriter writer,
+            MeasureRunTracker tracker,
+            DetectedIssuePublisher issuePublisher) {
         this.catalog = catalog;
         this.runner = runner;
         this.writer = writer;
         this.tracker = tracker;
+        this.issuePublisher = issuePublisher;
     }
 
     public RunSummary run(LocalDate runDate) {
@@ -45,6 +52,7 @@ public class GapAnalysisService {
             for (MeasureDefinition measure : catalog.measures()) {
                 List<PatientEvaluation> evaluations = runner.evaluate(measure, runDate);
                 CareGapWriter.GapCounts counts = writer.upsert(measure.id(), evaluations);
+                issuePublisher.publish(measure, runDate, evaluations);
                 log.info("Measure {}: {} open, {} closed gaps", measure.id(), counts.open(), counts.closed());
                 open += counts.open();
                 closed += counts.closed();
