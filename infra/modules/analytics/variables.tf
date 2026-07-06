@@ -47,3 +47,13 @@ variable "api_db_user" {
   description = "Database user of care-gap-api; Flyway V3 grants it SELECT."
   type        = string
 }
+
+variable "fhir_store_id" {
+  description = "Full FHIR store resource id, for the write-back IAM binding."
+  type        = string
+}
+
+variable "fhir_store_url" {
+  description = "FHIR R4 base URL for DetectedIssue write-back."
+  type        = string
+}

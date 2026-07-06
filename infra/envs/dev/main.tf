@@ -121,6 +121,8 @@ module "analytics" {
   db_username                   = local.gap_analysis_db_user
   api_db_user                   = local.api_db_user
   db_jdbc_url                   = local.db_jdbc_url
+  fhir_store_id                 = module.fhir_store.fhir_store_id
+  fhir_store_url                = module.fhir_store.fhir_store_url
 
   depends_on = [google_project_service.required]
 }
