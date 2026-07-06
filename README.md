@@ -89,7 +89,7 @@ Variables):
 | Path | Contents |
 |---|---|
 | `services/ingestion-service` | Cloud Run service: GCS event → HAPI parse/validate → idempotent PUT rewrite → FHIR store, with retry/backoff |
-| `services/gap-analysis-service` | Cloud Run service: Pub/Sub → measure SQL on BigQuery → gap upserts into PostgreSQL; owns the schema (Flyway) |
+| `services/gap-analysis-service` | Cloud Run service: Pub/Sub → measure SQL on BigQuery → gap upserts into PostgreSQL (owns the schema via Flyway) → DetectedIssue write-back to the FHIR store |
 | `services/care-gap-api` | Read-only REST API over the operational store (`/api/gaps`, `/api/gaps/summary`, `/api/measures`, `/api/runs`) |
 | `dashboard/` | Angular 20 dashboard (stat tiles, gap table, run history); nginx container with runtime API URL injection |
 | `measures/` | Simplified HEDIS-style measure SQL (BigQuery) |
