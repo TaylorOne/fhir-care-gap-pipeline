@@ -7,7 +7,13 @@ note in `docs/` — additions that contradict a v1 decision get an explicit
 amendment, the same way the dashboard-hosting and schema-ownership changes
 were recorded.
 
-Suggested order: W0 → W1 → W2 → W3 (staged) → W4 → W5. W6 is optional.
+Suggested order: W0 → W1 → W2. W6 is optional.
+
+> **Scope note:** the ML track, GKE comparison, and Cloud Build workstreams
+> that originally lived here (W3–W5) moved to a companion project — a small,
+> hands-built ML system where those tools are the primary runtime rather than
+> a retrofit. This repo stays the architecture/platform showcase; the
+> companion is the ML depth piece.
 
 ---
 
@@ -62,61 +68,6 @@ per-patient files.
 
 **New surface:** Cloud Functions 2nd gen, event filters, function CI.
 
-## W3 — ML track (staged): gap-closure propensity
-
-Predict which open gaps are unlikely to close without outreach, and surface
-an outreach-priority score in the API/dashboard. Synthetic data means the
-model learns Synthea's generator dynamics — document that loudly; the value
-is the MLOps mechanics, not the clinical model.
-
-**Stage 1 — features + baseline (BigQuery only)**
-- [ ] Feature engineering SQL over the FHIR export: age, condition burden,
-      encounter frequency/recency, historical gap-closure behavior per
-      patient (needs a small gap-history table first — worth adding anyway
-      for dashboard trends).
-- [ ] Baseline model with **BigQuery ML** (logistic regression): train,
-      evaluate (AUC), predict — all in SQL. Cheap, fast to iterate.
-
-**Stage 2 — Vertex AI custom training + registry**
-- [ ] Port the model to a containerized training job (scikit-learn/XGBoost),
-      run as a **Vertex AI custom training job** reading the features table.
-- [ ] Register versions in **Vertex AI Model Registry** with eval metrics;
-      write the promotion rule down (what makes a version deployable).
-- [ ] **Batch predictions** written to BigQuery, then upserted into Postgres
-      (`care_gap.outreach_score`) by the gap-analysis run.
-
-**Stage 3 — pipeline + surfacing**
-- [ ] Orchestrate train→eval→register as a **Vertex AI Pipeline** (KFP),
-      triggered on demand; document the DAG.
-- [ ] API exposes the score; dashboard sorts open gaps by outreach priority.
-- [ ] Decision record: BQML vs custom training trade-off, observed costs.
-
-**New surface:** feature engineering, Vertex AI training/registry/batch
-prediction/pipelines, model versioning, ML pipeline troubleshooting.
-
-## W4 — GKE as an alternate runtime (time-boxed)
-
-Cloud Run remains the production answer (v1 analysis stands). Run the
-care-gap-api on **GKE Autopilot** as a comparative exercise:
-
-- [ ] Terraform an Autopilot cluster; deploy the *same image* with
-      Deployment/Service/Gateway manifests (kustomize), Workload Identity
-      for the runtime SA, HPA, liveness/readiness from the existing actuator
-      probes.
-- [ ] Write the comparison: what GKE bought (control, portability), what it
-      cost (manifests, cluster fee, upgrade surface), when it wins for real.
-- [ ] **Tear it down** — the cluster is a lab, not the architecture. Keep
-      manifests + doc in `deploy/gke/`.
-
-**New surface:** GKE Autopilot, Kubernetes manifests, Workload Identity.
-
-## W5 — Cloud Build mirror
-
-- [ ] Reimplement one deploy (ingestion) as `cloudbuild.yaml` with a trigger,
-      alongside the GitHub Actions version.
-- [ ] Decision record: Actions+WIF vs Cloud Build — auth model, speed, cost,
-      ecosystem. Keep whichever the evidence favors as primary.
-
 ## W6 (optional) — Firestore for care-management workflow state
 
 Gap *annotations* (assign to a care manager, snooze until date, notes) are
@@ -133,7 +84,5 @@ records themselves).
 
 ## Cost notes
 
-W1 removes cost (no public IP), W2/W3 stage 1 are cents, Vertex custom
-training is dollars per run at this data size, W4 GKE Autopilot bills per
-pod-hour (this is why it is time-boxed), W5/W6 are free tier. The standing
-rule remains: stop Cloud SQL when not demoing; destroy the GKE lab when done.
+W1 removes cost (no public IP); W2 and W6 sit in free tier. The standing
+rule remains: stop Cloud SQL when not demoing.
