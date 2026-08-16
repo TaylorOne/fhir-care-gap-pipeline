@@ -6,6 +6,9 @@ data ingested into a Healthcare API FHIR store, projected into BigQuery,
 evaluated against simplified HEDIS-style quality measures, and served through a
 Spring Boot API and Angular dashboard.
 
+**New to the project?** Start with the [working project map](docs/START_HERE.md)
+and the [.NET/Azure to Java/GCP translation guide](docs/DOTNET_AZURE_TO_JAVA_GCP.md).
+
 **Design docs:** [Architecture](docs/ARCHITECTURE.md) ·
 [Repository design](docs/REPOSITORY_DESIGN.md)
 
