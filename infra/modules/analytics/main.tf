@@ -85,6 +85,13 @@ resource "google_project_iam_member" "runtime_cloudsql_iam_login" {
   member  = "serviceAccount:${var.runtime_service_account_email}"
 }
 
+# Write-back: gaps are published to the FHIR store as DetectedIssue resources.
+resource "google_healthcare_fhir_store_iam_member" "runtime_writes_detected_issues" {
+  fhir_store_id = var.fhir_store_id
+  role          = "roles/healthcare.fhirResourceEditor"
+  member        = "serviceAccount:${var.runtime_service_account_email}"
+}
+
 resource "google_cloud_run_v2_service" "gap_analysis" {
   project             = var.project_id
   name                = var.service_name
@@ -130,6 +137,14 @@ resource "google_cloud_run_v2_service" "gap_analysis" {
       env {
         name  = "API_DB_USER"
         value = var.api_db_user
+      }
+      env {
+        name  = "FHIR_WRITEBACK_ENABLED"
+        value = "true"
+      }
+      env {
+        name  = "FHIR_STORE_URL"
+        value = var.fhir_store_url
       }
 
       resources {

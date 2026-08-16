@@ -8,3 +8,7 @@ spring:
 
 gapanalysis:
   bigquery-dataset: ${BQ_DATASET:fhir_data}
+  # Write-back demoable end-to-end locally against the compose HAPI store.
+  fhir-writeback-enabled: ${FHIR_WRITEBACK_ENABLED:true}
+  fhir-store-url: ${FHIR_STORE_URL:http://localhost:8090/fhir}
+  use-google-auth: false

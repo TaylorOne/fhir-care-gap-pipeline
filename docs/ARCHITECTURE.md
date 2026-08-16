@@ -254,6 +254,18 @@ Adding a measure is data + SQL, not code — a point worth making in the README.
   `gcloud run deploy` from Cloud Build (or GitHub Actions with Workload Identity
   Federation).
 
+### 4.1 Closed-loop gaps-in-care (added post-v1)
+
+The gap-analysis service publishes every evaluated gap back to the FHIR store
+as a `DetectedIssue` — a simplified version of the Da Vinci DEQM gaps-in-care
+exchange pattern, making the clinical store the system of record for gaps as
+well as source data. Deterministic resource ids (`caregap-<measure>-<patient>`)
+keep the write idempotent under Pub/Sub redelivery, matching the pipeline's
+end-to-end idempotency contract. Closure is modeled as a `mitigation` entry
+(R4 `DetectedIssue.status` has no "resolved" concept); the issue's `code`
+carries the measure in a project-local code system. Write-back is a feature
+flag: off by default, on in the dev environment and in the local compose loop.
+
 ## 5. Cost Envelope (monthly, portfolio-scale)
 
 | Item | Estimate |
