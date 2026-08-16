@@ -9,7 +9,10 @@ import org.springframework.stereotype.Component;
 
 /**
  * Parses raw JSON into a typed R4 {@link Bundle} and enforces the structural
- * contract this pipeline depends on (a transaction bundle).
+ * contract this pipeline depends on (a transaction or batch write bundle).
+ * Synthea emits patient data as transactions but emits its organization and
+ * practitioner directories as batches; {@link BundleTransformer} normalizes
+ * both forms to an idempotent transaction before they reach the FHIR store.
  *
  * <p>Design decision: we use HAPI's {@link StrictErrorHandler}, which rejects
  * unknown elements and malformed values at parse time, but we deliberately do
@@ -43,12 +46,13 @@ public class BundleParser {
             throw new BundleParseException(
                     "Expected a Bundle but object contains a " + resource.fhirType());
         }
-        if (bundle.getType() != Bundle.BundleType.TRANSACTION) {
+        if (bundle.getType() != Bundle.BundleType.TRANSACTION
+                && bundle.getType() != Bundle.BundleType.BATCH) {
             throw new BundleParseException(
-                    "Expected a transaction bundle but got type " + bundle.getType());
+                    "Expected a transaction or batch bundle but got type " + bundle.getType());
         }
         if (bundle.getEntry().isEmpty()) {
-            throw new BundleParseException("Transaction bundle contains no entries");
+            throw new BundleParseException("Write bundle contains no entries");
         }
         return bundle;
     }

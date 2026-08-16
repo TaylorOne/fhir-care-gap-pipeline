@@ -37,6 +37,25 @@ class BundleTransformerTest {
     }
 
     @Test
+    void normalizesSyntheaBatchToIdempotentTransaction() {
+        Bundle batch = new Bundle().setType(Bundle.BundleType.BATCH);
+        batch.addEntry()
+                .setFullUrl("urn:uuid:11111111-1111-1111-1111-111111111111")
+                .setResource(new Patient().setActive(true))
+                .getRequest().setMethod(Bundle.HTTPVerb.POST).setUrl("Patient");
+
+        Bundle result = transformer.toIdempotentTransaction(batch);
+
+        assertThat(result.getType()).isEqualTo(Bundle.BundleType.TRANSACTION);
+        Bundle.BundleEntryComponent entry = result.getEntry().getFirst();
+        assertThat(entry.getRequest().getMethod()).isEqualTo(Bundle.HTTPVerb.PUT);
+        assertThat(entry.getRequest().getUrl())
+                .isEqualTo("Patient/11111111-1111-1111-1111-111111111111");
+        assertThat(entry.getResource().getIdPart())
+                .isEqualTo("11111111-1111-1111-1111-111111111111");
+    }
+
+    @Test
     void leavesExistingPutEntriesAlone() {
         Bundle bundle = new Bundle().setType(Bundle.BundleType.TRANSACTION);
         bundle.addEntry()

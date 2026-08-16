@@ -34,8 +34,8 @@ target/
 .project
 .settings/
 
-# Local dev artifacts
-bundles/
+# Local ingestion staging directory (keep test fixtures named "bundles")
+/services/ingestion-service/bundles/
 
 # Terraform
 .terraform/

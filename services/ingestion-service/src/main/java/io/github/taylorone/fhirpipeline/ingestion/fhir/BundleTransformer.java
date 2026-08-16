@@ -37,6 +37,14 @@ public class BundleTransformer {
      * returns it for fluent use.
      */
     public Bundle toIdempotentTransaction(Bundle bundle) {
+        if (bundle.getType() == Bundle.BundleType.BATCH) {
+            // Synthea's provider/organization directory exports are batches.
+            // Normalize them so the complete directory is committed atomically
+            // and the store client has one consistent execute-transaction contract.
+            bundle.setType(Bundle.BundleType.TRANSACTION);
+            log.info("Normalized Synthea batch bundle to transaction");
+        }
+
         int rewritten = 0;
         int leftAsIs = 0;
         for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {

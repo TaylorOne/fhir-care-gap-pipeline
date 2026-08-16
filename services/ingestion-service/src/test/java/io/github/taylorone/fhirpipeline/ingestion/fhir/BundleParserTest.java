@@ -24,6 +24,21 @@ class BundleParserTest {
     }
 
     @Test
+    void parsesSyntheaInfrastructureBatchBundle() {
+        String batchJson = """
+                {"resourceType": "Bundle", "type": "batch", "entry": [
+                  {"fullUrl": "urn:uuid:11111111-1111-1111-1111-111111111111",
+                   "resource": {"resourceType": "Practitioner"},
+                   "request": {"method": "POST", "url": "Practitioner"}}
+                ]}""";
+
+        Bundle bundle = parser.parse(batchJson);
+
+        assertThat(bundle.getType()).isEqualTo(Bundle.BundleType.BATCH);
+        assertThat(bundle.getEntry()).hasSize(1);
+    }
+
+    @Test
     void rejectsNonBundleResource() {
         String patientJson = """
                 {"resourceType": "Patient", "gender": "female"}""";
@@ -34,7 +49,7 @@ class BundleParserTest {
     }
 
     @Test
-    void rejectsNonTransactionBundle() {
+    void rejectsNonWriteBundle() {
         String searchsetJson = """
                 {"resourceType": "Bundle", "type": "searchset", "entry": [
                   {"resource": {"resourceType": "Patient"}}
