@@ -26,6 +26,9 @@ replay_pid*
 # Maven
 target/
 
+# Eclipse / VS Code Java build output
+bin/
+
 # IDE
 .idea/
 *.iml
