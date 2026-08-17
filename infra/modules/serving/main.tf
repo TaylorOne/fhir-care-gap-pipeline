@@ -6,15 +6,13 @@
 # while Cloud Run scales to zero with TLS included. Recorded as an
 # architecture amendment in docs/ARCHITECTURE.md.
 #
-# CORS needs the dashboard's origin before the dashboard service exists
-# (the API and dashboard would otherwise reference each other), so we use
-# Cloud Run's deterministic URL format: https://SERVICE-PROJECT_NUMBER.REGION.run.app
-data "google_project" "this" {
-  project_id = var.project_id
-}
-
+# CORS needs the dashboard's origin before the dashboard service exists (the
+# API and dashboard would otherwise reference each other), and every Cloud
+# Run service answers on two valid hostnames (a default hash-based one and a
+# deterministic project-number one) so either could show up in a browser.
+# A pattern matching the service name sidesteps both problems.
 locals {
-  dashboard_origin = "https://${var.dashboard_service_name}-${data.google_project.this.number}.${var.region}.run.app"
+  dashboard_origin_pattern = "https://${var.dashboard_service_name}-*.run.app"
 }
 
 resource "google_project_iam_member" "runtime_cloudsql_client" {
@@ -64,8 +62,8 @@ resource "google_cloud_run_v2_service" "api" {
         value = var.db_username
       }
       env {
-        name  = "DASHBOARD_ORIGIN"
-        value = local.dashboard_origin
+        name  = "DASHBOARD_ORIGIN_PATTERN"
+        value = local.dashboard_origin_pattern
       }
 
       resources {

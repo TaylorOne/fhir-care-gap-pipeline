@@ -28,4 +28,4 @@ management:
         enabled: true
 
 api:
-  dashboard-origin: ${DASHBOARD_ORIGIN:http://localhost:4200}
+  dashboard-origin-pattern: ${DASHBOARD_ORIGIN_PATTERN:http://localhost:4200}
