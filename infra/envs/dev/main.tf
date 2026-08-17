@@ -11,6 +11,7 @@ locals {
     "storage.googleapis.com",
     "iam.googleapis.com",
     "cloudresourcemanager.googleapis.com",
+    "sqladmin.googleapis.com",
   ]
 }
 
